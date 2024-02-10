@@ -1,4 +1,7 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -6,6 +9,20 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.konfig)
+}
+
+fun <T: Any> propOfDef(propertyName: String, defaultValue: T): T {
+    val props = Properties()
+    try {
+        FileInputStream("local.properties").use { props.load(it) }
+    } catch (e: Exception) {
+        println("Error reading local.properties: ${e.message}")
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    val propertyValue = props[propertyName] as? T
+    return propertyValue ?: defaultValue
 }
 
 kotlin {
@@ -56,6 +73,10 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.multiplatformSettings)
             implementation(libs.koin.core)
+            implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.storage)
+            implementation(libs.supabase.auth)
+            implementation(libs.platform.settings)
         }
 
         commonTest.dependencies {
@@ -86,6 +107,14 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
 
+    }
+}
+
+buildkonfig {
+    packageName = "guild.hackathon"
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "SUPABASE_URL", propOfDef("SUPABASE_URL", "${System.getenv("SUPABASE_URL")}"))
+        buildConfigField(FieldSpec.Type.STRING, "SUPABASE_KEY", propOfDef("SUPABASE_KEY", "${System.getenv("SUPABASE_KEY")}"))
     }
 }
 
