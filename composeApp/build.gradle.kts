@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.konfig)
 }
 
 kotlin {
@@ -56,6 +57,10 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.multiplatformSettings)
             implementation(libs.koin.core)
+            implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.storage)
+            implementation(libs.supabase.auth)
+            implementation(libs.platform.settings)
         }
 
         commonTest.dependencies {
