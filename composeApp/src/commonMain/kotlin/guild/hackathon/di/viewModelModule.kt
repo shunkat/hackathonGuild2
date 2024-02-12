@@ -6,7 +6,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import guild.hackathon.ui.Detail.DetailScreenModel
 import guild.hackathon.ui.List.ListScreenModel
-import guild.hackathon.ui.login.LoginScreenModel
+import guild.hackathon.ui.Login.LoginScreenModel
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.dsl.module
@@ -27,11 +27,11 @@ inline fun <reified T : ScreenModel> Screen.getScreenModel(
 val viewModel = module {
     // LoginScreenModelのインスタンスを生成するためのファクトリを定義
     factory {
-        LoginScreenModel()
+        LoginScreenModel(get())
     }
 
     factory {
-        ListScreenModel(get())
+        ListScreenModel()
     }
 
     factory {
