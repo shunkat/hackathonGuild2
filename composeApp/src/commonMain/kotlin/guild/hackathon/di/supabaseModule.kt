@@ -6,6 +6,7 @@ import io.github.jan.supabase.storage.Storage
 import org.koin.dsl.module
 import guild.hackathon.BuildKonfig.SUPABASE_KEY
 import guild.hackathon.BuildKonfig.SUPABASE_URL
+import io.github.jan.supabase.gotrue.GoTrue
 
 val supabaseModule = module {
     single {
@@ -15,6 +16,7 @@ val supabaseModule = module {
         ) {
             install(Postgrest)
             install(Storage)
+            install(GoTrue)
         }
     }
 }
