@@ -1,4 +1,4 @@
-package guild.hackathon.ui.login
+package guild.hackathon.ui.Login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,22 +29,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import guild.hackathon.di.getScreenModel
 import guild.hackathon.theme.LocalThemeIsDark
+import guild.hackathon.di.getScreenModel
 
 class LoginScreen: Screen {
     @Composable
     override fun Content() {
-        val scrennModel = getScreenModel<LoginScreenModel>()
+        val screenModel = getScreenModel<LoginScreenModel>()
+        var name by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false) }
+        var isFirstTime by remember { mutableStateOf(false) }
 
         Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
 
@@ -68,6 +72,27 @@ class LoginScreen: Screen {
                         contentDescription = null
                     )
                 }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = isFirstTime,
+                    onCheckedChange = { isFirstTime = it }
+                )
+                Text("sign up?")
+            }
+
+            // チェックボックスがチェックされている場合のみ、nameのためのtextfieldを表示
+            if (isFirstTime) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                )
             }
 
             OutlinedTextField(
@@ -101,7 +126,13 @@ class LoginScreen: Screen {
             )
 
             Button(
-                onClick = { /* Handle login logic here */ },
+                onClick = {
+                    if (isFirstTime) {
+                        screenModel.signUp(name, email, password)
+                    } else {
+                        screenModel.login(email, password)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
                 Text("Login")
