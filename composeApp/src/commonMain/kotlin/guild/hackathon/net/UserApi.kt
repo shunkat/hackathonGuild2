@@ -8,6 +8,7 @@ import io.github.jan.supabase.postgrest.postgrest
 
 interface UserApi {
     suspend fun register(name: String, email: String, password: String): User?
+    suspend fun login(email: String, password: String)
 }
 
 internal class UserApiImpl(
@@ -25,12 +26,21 @@ internal class UserApiImpl(
             this.email = email
             this.password = password
         }
-        return if (result != null) {
+        if (result != null) {
             // If registration is successful, insert the user into the "user" table
-            val user = User(result.id?.toInt(), name, email, null)
+            val user = User(result.id, name, email, null)
             table.insert(user).decodeSingle<User>()
+            return user
         } else {
-            null
+            return null
+        }
+    }
+
+    override suspend fun login(email: String, password: String) { // Add this method
+        // Use Supabase auth to log in the user
+        val result = client.gotrue.loginWith(Email) {
+            this.email = email
+            this.password = password
         }
     }
 }
