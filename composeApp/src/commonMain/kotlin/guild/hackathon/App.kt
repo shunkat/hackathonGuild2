@@ -8,8 +8,7 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import guild.hackathon.di.initKoin
 import guild.hackathon.theme.AppTheme
-import guild.hackathon.ui.login.LoginScreen
-import org.jetbrains.skia.Surface
+import guild.hackathon.ui.Login.LoginScreen
 
 @Composable
 internal fun App() = AppTheme {
