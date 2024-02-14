@@ -24,3 +24,6 @@ To run the application on iPhone device/simulator:
 ### Browser
 Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun`
 
+## デプロイ手順
+> ./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
+composeApp/build/dist/js/developmentExecutableをnetlifyにdrop
