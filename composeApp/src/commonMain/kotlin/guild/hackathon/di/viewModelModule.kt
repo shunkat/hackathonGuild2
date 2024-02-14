@@ -31,7 +31,7 @@ val viewModel = module {
     }
 
     factory {
-        ListScreenModel()
+        ListScreenModel(get())
     }
 
     factory {
