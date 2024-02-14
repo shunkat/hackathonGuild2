@@ -1,40 +1,41 @@
 package guild.hackathon.ui.Login
 
 import cafe.adriel.voyager.core.model.ScreenModel
-import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import guild.hackathon.net.UserApi
-import guild.hackathon.model.User
 import guild.hackathon.utils.settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class LoginScreenModel(
     private val userApi: UserApi,
 ): ScreenModel {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    val loginStatus = MutableStateFlow<Boolean>(false)
+    val loginAlert = MutableStateFlow<String?>(null)
 
     fun signUp(name: String, email: String, password: String) {
         coroutineScope.launch {
-            val user = registerUser(name, email, password)
-            // Handle the user registration result here
+            kotlin.runCatching {
+                userApi.register(name, email, password)
+            }.onSuccess {
+                saveCredentials(name, email, password)
+                loginStatus.value = true
+            }.onFailure {
+                loginAlert.value = "There was an error while registering: ${it.message}"
+            }
         }
     }
 
-    private suspend fun registerUser(name: String, email: String, password: String): User? {
-        val user = userApi.register(name, email, password)
-        user?.let {
-            // Save the user data to settings
-            val userJson = Json.encodeToString(it)
-            settings["user"] = userJson
-            // Save the email and password to settings
-            settings["email"] = email
-            settings["password"] = password
+    private fun saveCredentials(name: String?, email: String, password: String){
+        name?.let {
+            settings["name"] = it
         }
-        return user
+        // Save the email and password to settings
+        settings["email"] = email
+        settings["password"] = password
     }
 
     fun getSavedCredentials(): Pair<String?, String?> {
@@ -45,7 +46,14 @@ class LoginScreenModel(
 
     fun login(email: String, password: String) {
         coroutineScope.launch {
-            userApi.login(email, password)
+            kotlin.runCatching {
+                userApi.login(email, password)
+            }.onSuccess {
+                saveCredentials(null, email, password)
+                loginStatus.value = true
+            }.onFailure {
+                loginAlert.value = "There was an error while logging in. Check your credentials and try again."
+            }
         }
     }
 }

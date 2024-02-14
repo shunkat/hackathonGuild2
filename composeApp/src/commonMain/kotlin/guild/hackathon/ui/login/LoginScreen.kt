@@ -19,12 +19,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,18 +38,29 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import guild.hackathon.theme.LocalThemeIsDark
 import guild.hackathon.di.getScreenModel
+import guild.hackathon.ui.List.ListScreen
+import guild.hackathon.ui.components.AlertDialog
 
-class LoginScreen: Screen {
+@ExperimentalMaterial3Api
+class LoginScreen(): Screen {
     @Composable
     override fun Content() {
         val screenModel = getScreenModel<LoginScreenModel>()
+        val savedCredentials = screenModel.getSavedCredentials()
         var name by remember { mutableStateOf("") }
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+        var email by remember { mutableStateOf(savedCredentials.first ?: "") }
+        var password by remember { mutableStateOf(savedCredentials.second ?: "") }
         var passwordVisibility by remember { mutableStateOf(false) }
-        var isFirstTime by remember { mutableStateOf(false) }
+        var signUp by remember { mutableStateOf(false) }
+        val loginAlert by screenModel.loginAlert.collectAsState()
+        val loginStatus by screenModel.loginStatus.collectAsState()
+        val navigator = LocalNavigator.currentOrThrow
+
+
 
         Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
 
@@ -78,14 +91,14 @@ class LoginScreen: Screen {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
-                    checked = isFirstTime,
-                    onCheckedChange = { isFirstTime = it }
+                    checked = signUp,
+                    onCheckedChange = { signUp = it }
                 )
                 Text("sign up?")
             }
 
             // チェックボックスがチェックされている場合のみ、nameのためのtextfieldを表示
-            if (isFirstTime) {
+            if (signUp) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -127,7 +140,7 @@ class LoginScreen: Screen {
 
             Button(
                 onClick = {
-                    if (isFirstTime) {
+                    if (signUp) {
                         screenModel.signUp(name, email, password)
                     } else {
                         screenModel.login(email, password)
@@ -137,6 +150,15 @@ class LoginScreen: Screen {
             ) {
                 Text("Login")
             }
+        }
+        if(loginAlert != null) {
+            AlertDialog(loginAlert!!) {
+                screenModel.loginAlert.value = null
+            }
+        }
+        if (loginStatus == true) {
+            navigator.push(ListScreen())
+            screenModel.loginStatus.value = false
         }
     }
 }

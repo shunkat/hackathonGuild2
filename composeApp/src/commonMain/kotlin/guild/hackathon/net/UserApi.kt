@@ -26,17 +26,10 @@ internal class UserApiImpl(
             this.email = email
             this.password = password
         }
-        if (result != null) {
-            // If registration is successful, insert the user into the "user" table
-            val user = User(result.id, name, email, null)
-            table.insert(user).decodeSingle<User>()
-            return user
-        } else {
-            return null
-        }
+        return User(result?.id, name ,email, null)
     }
 
-    override suspend fun login(email: String, password: String) { // Add this method
+    override suspend fun login(email: String, password: String){ // Add this method
         // Use Supabase auth to log in the user
         val result = client.gotrue.loginWith(Email) {
             this.email = email
