@@ -7,6 +7,7 @@ import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 
 interface UserApi {
+    suspend fun getUserId(): String?
     suspend fun register(name: String, email: String, password: String): User?
     suspend fun login(email: String, password: String)
 }
@@ -14,7 +15,10 @@ interface UserApi {
 internal class UserApiImpl(
     private val client : SupabaseClient,
 ): UserApi {
-    private val table = client.postgrest["user"]
+    override suspend fun getUserId(): String? {
+        // Use Supabase auth to get the user id
+        return client.gotrue.currentUserOrNull()?.id
+    }
 
     override suspend fun register(
         name: String,
