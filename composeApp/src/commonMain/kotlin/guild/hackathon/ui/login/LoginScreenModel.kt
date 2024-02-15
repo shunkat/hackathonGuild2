@@ -56,4 +56,16 @@ class LoginScreenModel(
             }
         }
     }
+
+    fun loginWithGoogle() {
+        coroutineScope.launch {
+            kotlin.runCatching {
+                userApi.loginWithGoogle()
+            }.onSuccess {
+                loginStatus.value = true
+            }.onFailure {
+                loginAlert.value = "There was an error while logging in with Google: ${it.message}"
+            }
+        }
+    }
 }

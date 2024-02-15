@@ -3,6 +3,7 @@ package guild.hackathon.net
 import guild.hackathon.model.User
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.gotrue
+import io.github.jan.supabase.gotrue.providers.Google
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 
@@ -10,6 +11,7 @@ interface UserApi {
     suspend fun getUserId(): String?
     suspend fun register(name: String, email: String, password: String): User?
     suspend fun login(email: String, password: String)
+    suspend fun loginWithGoogle()
 }
 
 internal class UserApiImpl(
@@ -39,5 +41,9 @@ internal class UserApiImpl(
             this.email = email
             this.password = password
         }
+    }
+    override suspend fun loginWithGoogle() {
+        // Use Supabase auth to log in the user with Google
+        client.gotrue.loginWith(Google)
     }
 }

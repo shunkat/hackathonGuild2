@@ -150,6 +150,16 @@ class LoginScreen(): Screen {
             ) {
                 Text("Login")
             }
+
+            // Googleログインボタンを追加
+            Button(
+                onClick = {
+                    screenModel.loginWithGoogle()
+                },
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            ) {
+                Text("Login with Google")
+            }
         }
         if(loginAlert != null) {
             AlertDialog(loginAlert!!) {
